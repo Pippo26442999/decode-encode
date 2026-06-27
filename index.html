@@ -5,14 +5,515 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔐 Base64 Encoder / Decoder</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
-    
-    <!-- ===== FORZA AGGIORNAMENTO CACHE ===== -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
-    <!-- ===== CSS CON CACHE BUSTER ===== -->
-    <link rel="stylesheet" href="css/style.css?v=2.1">
+    <style>
+        /* ============================================================
+           STILE COMPLETO
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatParticle linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+            5% { opacity: 0.6; }
+            85% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(46, 213, 115, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(79, 172, 254, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(102, 126, 234, 0.02) 0%, transparent 50%);
+            animation: backgroundMove 20s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(2%, 2%) rotate(3deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            background: rgba(26, 26, 46, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 28px;
+            padding: 30px 30px 20px;
+            max-width: 820px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: containerIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+        }
+
+        @keyframes containerIn {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            animation: pulseIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #2ed573, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header h1 .slash {
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 18px;
+            background: none;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 .decoder-text {
+            background: linear-gradient(135deg, #4facfe, #2ed573);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+            margin-top: 1px;
+            letter-spacing: 0.3px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(46, 213, 115, 0.12);
+            color: #2ed573;
+            border: 1px solid rgba(46, 213, 115, 0.15);
+            margin-top: 3px;
+        }
+
+        .divider {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(46, 213, 115, 0.3), transparent);
+            margin: 6px auto 12px;
+            border-radius: 2px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid .cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid .cell .cell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .grid .cell .cell-header label {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        .grid .cell .cell-header .char-count {
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 9px;
+        }
+
+        .grid .cell textarea {
+            width: 100%;
+            min-height: 130px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        .grid .cell textarea:focus {
+            outline: none;
+            border-color: rgba(46, 213, 115, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .grid .cell textarea::placeholder {
+            color: rgba(255, 255, 255, 0.08);
+        }
+
+        .grid .cell textarea[readonly] {
+            opacity: 0.8;
+        }
+
+        .cell-encode textarea {
+            border-color: rgba(46, 213, 115, 0.1);
+        }
+        .cell-encode .cell-header label {
+            color: #2ed573;
+        }
+
+        .cell-encoded textarea {
+            border-color: rgba(46, 213, 115, 0.08);
+        }
+        .cell-encoded .cell-header label {
+            color: rgba(46, 213, 115, 0.6);
+        }
+
+        .cell-decode textarea {
+            border-color: rgba(79, 172, 254, 0.1);
+        }
+        .cell-decode .cell-header label {
+            color: #4facfe;
+        }
+
+        .cell-decoded textarea {
+            border-color: rgba(79, 172, 254, 0.08);
+        }
+        .cell-decoded .cell-header label {
+            color: rgba(79, 172, 254, 0.6);
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 0 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            margin: 10px 0 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-row .btn {
+            padding: 6px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-row .btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.65);
+            transform: translateY(-1px);
+        }
+
+        .action-row .btn.primary {
+            background: rgba(46, 213, 115, 0.08);
+            border-color: rgba(46, 213, 115, 0.12);
+            color: #2ed573;
+        }
+
+        .action-row .btn.primary:hover {
+            background: rgba(46, 213, 115, 0.15);
+        }
+
+        .action-row .btn.dec {
+            background: rgba(79, 172, 254, 0.08);
+            border-color: rgba(79, 172, 254, 0.12);
+            color: #4facfe;
+        }
+
+        .action-row .btn.dec:hover {
+            background: rgba(79, 172, 254, 0.15);
+        }
+
+        .action-row .btn.danger:hover {
+            background: rgba(233, 69, 96, 0.1);
+            color: #e94560;
+            border-color: rgba(233, 69, 96, 0.12);
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            padding: 6px 0 2px;
+            align-items: center;
+        }
+
+        .options .option {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 10px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .options .option:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .options .option input[type="checkbox"] {
+            width: 13px;
+            height: 13px;
+            accent-color: #2ed573;
+            cursor: pointer;
+        }
+
+        .options .option select {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 5px;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 2px 6px;
+            font-size: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .options .option select:focus {
+            outline: none;
+            border-color: rgba(46, 213, 115, 0.2);
+        }
+
+        .options .option select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: auto;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+        }
+
+        .live-indicator .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #e94560;
+            transition: background 0.3s ease;
+        }
+
+        .live-indicator .dot.active {
+            background: #2ed573;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 10px;
+            letter-spacing: 0.8px;
+            font-weight: 500;
+        }
+
+        .footer .version {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 9px;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .footer .version strong {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            font-size: 12px;
+            z-index: 99999;
+            animation: toastIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            font-family: 'Segoe UI', sans-serif;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toast-error {
+            background: rgba(233, 69, 96, 0.9);
+        }
+
+        .toast-success {
+            background: rgba(46, 213, 115, 0.9);
+        }
+
+        .toast-info {
+            background: rgba(79, 172, 254, 0.9);
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .toast-hide {
+            animation: toastOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(40px) scale(0.95); }
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .grid .cell textarea {
+                min-height: 90px;
+            }
+            .container {
+                padding: 20px 16px 16px;
+            }
+            .header h1 {
+                font-size: 18px;
+            }
+            .action-row .btn {
+                padding: 5px 12px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 14px 10px 12px;
+            }
+            .header h1 {
+                font-size: 15px;
+            }
+            .grid .cell textarea {
+                min-height: 70px;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+            .action-row .btn {
+                padding: 4px 10px;
+                font-size: 9px;
+            }
+            .options .option {
+                font-size: 9px;
+            }
+            .footer .version {
+                font-size: 8px;
+                padding: 2px 8px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -113,7 +614,300 @@
         </div>
     </div>
 
-    <!-- ===== JS CON CACHE BUSTER ===== -->
-    <script src="js/app.js?v=2.1"></script>
+    <script>
+        // ============================================================
+        //  BASE64 ENCODER / DECODER - APP COMPLETA
+        //  TUTTO IN UN UNICO FILE
+        // ============================================================
+
+        console.log('🔐 Base64 Encoder/Decoder v3.0 loaded!');
+
+        // ===== PARTICLES =====
+        (function createParticles() {
+            var container = document.getElementById('particles');
+            var count = 50;
+            var colors = [
+                'rgba(46, 213, 115, 0.35)',
+                'rgba(79, 172, 254, 0.25)',
+                'rgba(255, 255, 255, 0.15)',
+                'rgba(102, 126, 234, 0.25)'
+            ];
+
+            for (var i = 0; i < count; i++) {
+                var particle = document.createElement('div');
+                particle.className = 'particle';
+                var size = Math.random() * 3 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                var duration = Math.random() * 17 + 10;
+                particle.style.animationDuration = duration + 's';
+                var delay = Math.random() * 3;
+                particle.style.animationDelay = delay + 's';
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                container.appendChild(particle);
+            }
+        })();
+
+        // ===== DOM ELEMENTS =====
+        var inputText = document.getElementById('input-text');
+        var encodedText = document.getElementById('encoded-text');
+        var decodeText = document.getElementById('decode-text');
+        var decodedText = document.getElementById('decoded-text');
+
+        var inputCount = document.getElementById('input-count');
+        var encodedCount = document.getElementById('encoded-count');
+        var decodeInputCount = document.getElementById('decode-input-count');
+        var decodedCount = document.getElementById('decoded-count');
+
+        var encodeBtn = document.getElementById('encode-btn');
+        var decodeBtn = document.getElementById('decode-btn');
+        var swapBtn = document.getElementById('swap-btn');
+        var copyBtn = document.getElementById('copy-btn');
+        var clearBtn = document.getElementById('clear-btn');
+
+        var liveMode = document.getElementById('live-mode');
+        var urlSafe = document.getElementById('url-safe');
+        var wrapLines = document.getElementById('wrap-lines');
+        var newlineMode = document.getElementById('newline-mode');
+        var liveDot = document.getElementById('live-dot');
+        var liveStatus = document.getElementById('live-status');
+
+        // ===== TOAST =====
+        function showToast(message, type) {
+            type = type || 'success';
+            var oldToasts = document.querySelectorAll('.toast');
+            oldToasts.forEach(function(t) {
+                t.classList.add('toast-hide');
+                setTimeout(function() { t.remove(); }, 500);
+            });
+
+            var toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(function() {
+                toast.classList.add('toast-hide');
+                setTimeout(function() { toast.remove(); }, 500);
+            }, 2800);
+        }
+
+        // ===== BASE64 FUNCTIONS =====
+        function toBase64(str) {
+            try {
+                return btoa(unescape(encodeURIComponent(str)));
+            } catch (e) {
+                return btoa(str);
+            }
+        }
+
+        function fromBase64(str) {
+            try {
+                return decodeURIComponent(escape(atob(str)));
+            } catch (e) {
+                return atob(str);
+            }
+        }
+
+        function toBase64URL(str) {
+            return toBase64(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function fromBase64URL(str) {
+            var base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (base64.length % 4) {
+                base64 += '=';
+            }
+            return fromBase64(base64);
+        }
+
+        function wrapText(text, width) {
+            width = width || 76;
+            if (!wrapLines.checked) return text;
+            return text.replace(/(.{76})/g, '$1\n').trim();
+        }
+
+        function getNewline(text) {
+            switch (newlineMode.value) {
+                case 'crlf': return text.replace(/\n/g, '\r\n');
+                case 'none': return text.replace(/\n/g, '');
+                default: return text;
+            }
+        }
+
+        // ===== UPDATE COUNTS =====
+        function updateCounts() {
+            inputCount.textContent = inputText.value.length;
+            encodedCount.textContent = encodedText.value.length;
+            decodeInputCount.textContent = decodeText.value.length;
+            decodedCount.textContent = decodedText.value.length;
+        }
+
+        // ===== PROCESS FUNCTIONS =====
+        function processEncode() {
+            var input = inputText.value;
+            if (!input) {
+                encodedText.value = '';
+                updateCounts();
+                return;
+            }
+            try {
+                var useUrlSafe = urlSafe.checked;
+                var result = useUrlSafe ? toBase64URL(input) : toBase64(input);
+                result = wrapText(result);
+                result = getNewline(result);
+                encodedText.value = result;
+            } catch (e) {
+                encodedText.value = '❌ Error: ' + e.message;
+            }
+            updateCounts();
+        }
+
+        function processDecode() {
+            var input = decodeText.value;
+            if (!input) {
+                decodedText.value = '';
+                updateCounts();
+                return;
+            }
+            try {
+                var useUrlSafe = urlSafe.checked;
+                var result = useUrlSafe ? fromBase64URL(input) : fromBase64(input);
+                decodedText.value = result;
+            } catch (e) {
+                decodedText.value = '❌ Error: ' + e.message;
+            }
+            updateCounts();
+        }
+
+        function processAll() {
+            processEncode();
+            processDecode();
+        }
+
+        // ===== LIVE MODE TOGGLE =====
+        function updateLiveIndicator() {
+            var isLive = liveMode.checked;
+            liveDot.className = 'dot' + (isLive ? ' active' : '');
+            liveStatus.textContent = isLive ? 'Live ON' : 'Live OFF';
+        }
+
+        liveMode.addEventListener('change', function() {
+            updateLiveIndicator();
+            if (liveMode.checked) {
+                processAll();
+            }
+        });
+
+        // ===== INPUT EVENTS =====
+        inputText.addEventListener('input', function() {
+            if (liveMode.checked) {
+                processEncode();
+            }
+            updateCounts();
+        });
+
+        decodeText.addEventListener('input', function() {
+            if (liveMode.checked) {
+                processDecode();
+            }
+            updateCounts();
+        });
+
+        // ===== OPTIONS CHANGE =====
+        urlSafe.addEventListener('change', function() {
+            if (liveMode.checked) processAll();
+        });
+
+        wrapLines.addEventListener('change', function() {
+            if (liveMode.checked) processAll();
+        });
+
+        newlineMode.addEventListener('change', function() {
+            if (liveMode.checked) processAll();
+        });
+
+        // ===== BUTTONS =====
+        encodeBtn.addEventListener('click', function() {
+            processEncode();
+            showToast('✅ Encoded!', 'success');
+        });
+
+        decodeBtn.addEventListener('click', function() {
+            processDecode();
+            showToast('✅ Decoded!', 'success');
+        });
+
+        swapBtn.addEventListener('click', function() {
+            var temp = inputText.value;
+            inputText.value = decodeText.value;
+            decodeText.value = temp;
+            if (liveMode.checked) processAll();
+            updateCounts();
+            showToast('🔄 Swapped!', 'info');
+        });
+
+        copyBtn.addEventListener('click', function() {
+            var output = encodedText.value || decodedText.value;
+            if (!output) {
+                showToast('❌ Nothing to copy', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(output).then(function() {
+                showToast('📋 Copied!', 'success');
+            }).catch(function() {
+                if (encodedText.value) {
+                    encodedText.select();
+                    document.execCommand('copy');
+                } else {
+                    decodedText.select();
+                    document.execCommand('copy');
+                }
+                showToast('📋 Copied!', 'success');
+            });
+        });
+
+        clearBtn.addEventListener('click', function() {
+            inputText.value = '';
+            encodedText.value = '';
+            decodeText.value = '';
+            decodedText.value = '';
+            updateCounts();
+            showToast('🗑️ Cleared!', 'info');
+        });
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                processAll();
+                showToast('⚡ Processed!', 'success');
+            }
+            if (e.key === 'Escape') {
+                clearBtn.click();
+            }
+        });
+
+        // ===== ANTI-DEVTOOLS =====
+        (function antiDevTools() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); return false; }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key.toUpperCase())) { e.preventDefault(); return false; }
+                if (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) { e.preventDefault(); return false; }
+            });
+            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        })();
+
+        // ===== INIT =====
+        updateLiveIndicator();
+        processAll();
+        updateCounts();
+
+        console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
+        console.log('📝 Encode top-left → Encoded top-right');
+        console.log('🔓 Decode bottom-left → Decoded bottom-right');
+    </script>
+
 </body>
 </html>
