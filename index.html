@@ -266,7 +266,7 @@
         .action-row {
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             padding: 10px 0 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
@@ -275,12 +275,12 @@
         }
 
         .action-row .btn {
-            padding: 6px 20px;
+            padding: 6px 16px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.02);
             color: rgba(255, 255, 255, 0.35);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -304,6 +304,16 @@
 
         .action-row .btn.copy:hover {
             background: rgba(46, 213, 115, 0.15);
+        }
+
+        .action-row .btn.share {
+            background: rgba(79, 172, 254, 0.08);
+            border-color: rgba(79, 172, 254, 0.12);
+            color: #4facfe;
+        }
+
+        .action-row .btn.share:hover {
+            background: rgba(79, 172, 254, 0.15);
         }
 
         .action-row .btn.clear {
@@ -345,27 +355,6 @@
             height: 13px;
             accent-color: #2ed573;
             cursor: pointer;
-        }
-
-        .options .option select {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 5px;
-            color: rgba(255, 255, 255, 0.4);
-            padding: 2px 6px;
-            font-size: 10px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .options .option select:focus {
-            outline: none;
-            border-color: rgba(46, 213, 115, 0.2);
-        }
-
-        .options .option select option {
-            background: #1a1a2e;
-            color: #fff;
         }
 
         .live-indicator {
@@ -480,8 +469,8 @@
                 font-size: 18px;
             }
             .action-row .btn {
-                padding: 5px 16px;
-                font-size: 11px;
+                padding: 5px 12px;
+                font-size: 10px;
             }
         }
 
@@ -498,8 +487,8 @@
                 padding: 8px 10px;
             }
             .action-row .btn {
-                padding: 4px 14px;
-                font-size: 10px;
+                padding: 4px 10px;
+                font-size: 9px;
             }
             .options .option {
                 font-size: 9px;
@@ -570,6 +559,7 @@
         <!-- ===== ACTION ROW ===== -->
         <div class="action-row">
             <button class="btn copy" id="copy-btn">📋 Copy</button>
+            <button class="btn share" id="share-btn">🔗 Share</button>
             <button class="btn clear" id="clear-btn">🗑️ Clear</button>
         </div>
 
@@ -582,18 +572,6 @@
             <label class="option">
                 <input type="checkbox" id="url-safe">
                 🔗 URL-safe
-            </label>
-            <label class="option">
-                <input type="checkbox" id="wrap-lines">
-                📏 Wrap 76
-            </label>
-            <label class="option">
-                <span>📄 Newline:</span>
-                <select id="newline-mode">
-                    <option value="lf">LF</option>
-                    <option value="crlf">CRLF</option>
-                    <option value="none">None</option>
-                </select>
             </label>
             <div class="live-indicator">
                 <span class="dot active" id="live-dot"></span>
@@ -610,10 +588,10 @@
     <script>
         // ============================================================
         //  BASE64 ENCODER / DECODER - APP COMPLETA
-        //  WRAP E NEWLINE FUNZIONANTI
+        //  CON SHARE LINK (condivisione tramite URL)
         // ============================================================
 
-        console.log('🔐 Base64 Encoder/Decoder v3.2 loaded!');
+        console.log('🔐 Base64 Encoder/Decoder v3.4 loaded!');
 
         // ===== PARTICLES =====
         (function createParticles() {
@@ -655,12 +633,11 @@
         var decodedCount = document.getElementById('decoded-count');
 
         var copyBtn = document.getElementById('copy-btn');
+        var shareBtn = document.getElementById('share-btn');
         var clearBtn = document.getElementById('clear-btn');
 
         var liveMode = document.getElementById('live-mode');
         var urlSafe = document.getElementById('url-safe');
-        var wrapLines = document.getElementById('wrap-lines');
-        var newlineMode = document.getElementById('newline-mode');
         var liveDot = document.getElementById('live-dot');
         var liveStatus = document.getElementById('live-status');
 
@@ -712,33 +689,6 @@
             return fromBase64(base64);
         }
 
-        // ===== WRAP E NEWLINE FISSI =====
-        function applyWrapAndNewline(text) {
-            var result = text;
-
-            // Wrap a 76 caratteri
-            if (wrapLines.checked) {
-                result = result.replace(/(.{76})/g, '$1\n');
-                // Rimuove newline finale se presente
-                if (result.endsWith('\n')) {
-                    result = result.slice(0, -1);
-                }
-            }
-
-            // Applica newline
-            switch (newlineMode.value) {
-                case 'crlf':
-                    result = result.replace(/\n/g, '\r\n');
-                    break;
-                case 'none':
-                    result = result.replace(/\n/g, '');
-                    break;
-                // LF: non fare nulla (già \n)
-            }
-
-            return result;
-        }
-
         // ===== UPDATE COUNTS =====
         function updateCounts() {
             inputCount.textContent = inputText.value.length;
@@ -758,7 +708,6 @@
             try {
                 var useUrlSafe = urlSafe.checked;
                 var result = useUrlSafe ? toBase64URL(input) : toBase64(input);
-                result = applyWrapAndNewline(result);
                 encodedText.value = result;
             } catch (e) {
                 encodedText.value = '❌ Error: ' + e.message;
@@ -817,16 +766,8 @@
             updateCounts();
         });
 
-        // ===== OPTIONS CHANGE =====
+        // ===== URL-SAFE CHANGE =====
         urlSafe.addEventListener('change', function() {
-            if (liveMode.checked) processAll();
-        });
-
-        wrapLines.addEventListener('change', function() {
-            if (liveMode.checked) processAll();
-        });
-
-        newlineMode.addEventListener('change', function() {
             if (liveMode.checked) processAll();
         });
 
@@ -850,6 +791,79 @@
                 showToast('📋 Copied!', 'success');
             });
         });
+
+        // ===== SHARE =====
+        shareBtn.addEventListener('click', function() {
+            var encodeValue = inputText.value;
+            var decodeValue = decodeText.value;
+
+            if (!encodeValue && !decodeValue) {
+                showToast('❌ Nothing to share', 'error');
+                return;
+            }
+
+            // Crea un oggetto con i dati da condividere
+            var data = {};
+            if (encodeValue) data.e = encodeValue;
+            if (decodeValue) data.d = decodeValue;
+            if (urlSafe.checked) data.u = '1';
+
+            // Codifica in Base64URL per sicurezza
+            var json = JSON.stringify(data);
+            var encoded = toBase64URL(json);
+
+            // Costruisci il link
+            var currentUrl = window.location.href.split('?')[0].split('#')[0];
+            var shareUrl = currentUrl + '?data=' + encoded;
+
+            // Copia negli appunti
+            navigator.clipboard.writeText(shareUrl).then(function() {
+                showToast('🔗 Link copied to clipboard!', 'success');
+            }).catch(function() {
+                // Fallback: mostra il link in un prompt
+                prompt('Copy this link to share:', shareUrl);
+                showToast('🔗 Link generated!', 'info');
+            });
+        });
+
+        // ===== CARICA LINK CONDIVISO =====
+        function loadSharedData() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var dataParam = urlParams.get('data');
+
+            if (!dataParam) return;
+
+            try {
+                var json = fromBase64URL(dataParam);
+                var data = JSON.parse(json);
+
+                if (data.e) {
+                    inputText.value = data.e;
+                    if (liveMode.checked) processEncode();
+                }
+
+                if (data.d) {
+                    decodeText.value = data.d;
+                    if (liveMode.checked) processDecode();
+                }
+
+                if (data.u === '1') {
+                    urlSafe.checked = true;
+                }
+
+                updateCounts();
+
+                // Pulisci l'URL dalla query per non ricaricare i dati
+                if (window.history && window.history.replaceState) {
+                    var cleanUrl = window.location.href.split('?')[0];
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+
+                showToast('📥 Shared data loaded!', 'info');
+            } catch (e) {
+                console.warn('Invalid shared data:', e);
+            }
+        }
 
         // ===== CLEAR =====
         clearBtn.addEventListener('click', function() {
@@ -882,12 +896,12 @@
         updateLiveIndicator();
         processAll();
         updateCounts();
+        loadSharedData();
 
         console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
         console.log('📝 Encode top-left → Encoded top-right');
         console.log('🔓 Decode bottom-left → Decoded bottom-right');
-        console.log('📏 Wrap: ' + (wrapLines.checked ? 'ON' : 'OFF'));
-        console.log('📄 Newline: ' + newlineMode.value);
+        console.log('🔗 Share button creates a shareable link');
     </script>
 
 </body>
