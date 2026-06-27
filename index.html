@@ -408,6 +408,143 @@
             font-weight: 600;
         }
 
+        /* ===== MODALE DECODE ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-box {
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 24px;
+            padding: 35px 40px 30px;
+            max-width: 560px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .modal-box .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-box .modal-header h2 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-box .modal-header h2 span {
+            color: #2ed573;
+        }
+
+        .modal-box .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 4px 8px;
+        }
+
+        .modal-box .modal-close:hover {
+            color: #fff;
+        }
+
+        .modal-box .modal-content {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-box .modal-result {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px 18px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+
+        .modal-box .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .modal-box .modal-actions .btn-modal {
+            padding: 8px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            flex: 1;
+        }
+
+        .modal-box .modal-actions .btn-modal:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .modal-box .modal-actions .btn-modal.copy {
+            background: rgba(46, 213, 115, 0.08);
+            border-color: rgba(46, 213, 115, 0.12);
+            color: #2ed573;
+        }
+
+        .modal-box .modal-actions .btn-modal.copy:hover {
+            background: rgba(46, 213, 115, 0.15);
+        }
+
+        .modal-box .modal-actions .btn-modal.close-btn {
+            background: rgba(233, 69, 96, 0.06);
+            border-color: rgba(233, 69, 96, 0.08);
+            color: rgba(233, 69, 96, 0.6);
+        }
+
+        .modal-box .modal-actions .btn-modal.close-btn:hover {
+            background: rgba(233, 69, 96, 0.12);
+            color: #e94560;
+        }
+
         .toast {
             position: fixed;
             top: 20px;
@@ -417,7 +554,7 @@
             color: white;
             font-weight: 500;
             font-size: 12px;
-            z-index: 99999;
+            z-index: 100000;
             animation: toastIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5);
             max-width: 90%;
@@ -469,6 +606,9 @@
                 padding: 5px 12px;
                 font-size: 10px;
             }
+            .modal-box {
+                padding: 25px 20px 20px;
+            }
         }
 
         @media (max-width: 400px) {
@@ -494,11 +634,16 @@
                 font-size: 8px;
                 padding: 2px 8px;
             }
+            .modal-box .modal-result {
+                font-size: 13px;
+                padding: 12px 14px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- ===== PARTICLES ===== -->
     <div class="particles" id="particles"></div>
 
     <div class="container">
@@ -572,12 +717,28 @@
         </div>
     </div>
 
+    <!-- ===== MODALE DECODE ===== -->
+    <div class="modal-overlay" id="decode-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>🔓 Decoded <span>Content</span></h2>
+                <button class="modal-close" id="modal-close">✕</button>
+            </div>
+            <div class="modal-content">This is the decoded content from the shared link:</div>
+            <div class="modal-result" id="modal-result"></div>
+            <div class="modal-actions">
+                <button class="btn-modal copy" id="modal-copy">📋 Copy</button>
+                <button class="btn-modal close-btn" id="modal-close-btn">✕ Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================================
-        //  BASE64 ENCODER / DECODER - SHARE CON DECODE
+        //  BASE64 ENCODER / DECODER - CON MODALE DECODE
         // ============================================================
 
-        console.log('🔐 Base64 Encoder/Decoder v3.5 loaded!');
+        console.log('🔐 Base64 Encoder/Decoder v3.6 loaded!');
 
         // ===== PARTICLES =====
         (function createParticles() {
@@ -626,6 +787,46 @@
         var urlSafe = document.getElementById('url-safe');
         var liveDot = document.getElementById('live-dot');
         var liveStatus = document.getElementById('live-status');
+
+        // ===== MODALE =====
+        var modal = document.getElementById('decode-modal');
+        var modalResult = document.getElementById('modal-result');
+        var modalClose = document.getElementById('modal-close');
+        var modalCloseBtn = document.getElementById('modal-close-btn');
+        var modalCopy = document.getElementById('modal-copy');
+
+        function openModal(text) {
+            modalResult.textContent = text || '(empty)';
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        modalClose.addEventListener('click', closeModal);
+        modalCloseBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+        });
+
+        modalCopy.addEventListener('click', function() {
+            var text = modalResult.textContent;
+            if (!text || text === '(empty)') {
+                showToast('❌ Nothing to copy', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                showToast('📋 Copied!', 'success');
+            }).catch(function() {
+                var range = document.createRange();
+                range.selectNode(modalResult);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                showToast('📋 Copied!', 'success');
+            });
+        });
 
         // ===== TOAST =====
         function showToast(message, type) {
@@ -778,7 +979,7 @@
             });
         });
 
-        // ===== SHARE (salva l'Encoded in Decode) =====
+        // ===== SHARE =====
         shareBtn.addEventListener('click', function() {
             var encoded = encodedText.value;
 
@@ -787,7 +988,6 @@
                 return;
             }
 
-            // Crea un oggetto con il Base64 da condividere
             var data = { b: encoded };
             if (urlSafe.checked) data.u = '1';
 
@@ -798,14 +998,14 @@
             var shareUrl = currentUrl + '?data=' + encodedData;
 
             navigator.clipboard.writeText(shareUrl).then(function() {
-                showToast('🔗 Link copied to clipboard! The Base64 will appear in Decode.', 'success');
+                showToast('🔗 Link copied! When opened, it will show the decoded content.', 'success');
             }).catch(function() {
                 prompt('Copy this link to share:', shareUrl);
                 showToast('🔗 Link generated!', 'info');
             });
         });
 
-        // ===== CARICA LINK CONDIVISO =====
+        // ===== CARICA LINK CONDIVISO E APRE MODALE =====
         function loadSharedData() {
             var urlParams = new URLSearchParams(window.location.search);
             var dataParam = urlParams.get('data');
@@ -817,25 +1017,22 @@
                 var data = JSON.parse(json);
 
                 if (data.b) {
-                    // Metti il Base64 in Decode
-                    decodeText.value = data.b;
-                    if (liveMode.checked) processDecode();
+                    // Decodifica il Base64 per mostrarlo nella modale
+                    var decoded = fromBase64(data.b);
+                    openModal(decoded);
                 }
 
                 if (data.u === '1') {
                     urlSafe.checked = true;
                 }
 
-                updateCounts();
-
                 if (window.history && window.history.replaceState) {
                     var cleanUrl = window.location.href.split('?')[0];
                     window.history.replaceState({}, document.title, cleanUrl);
                 }
-
-                showToast('📥 Shared Base64 loaded in Decode!', 'info');
             } catch (e) {
                 console.warn('Invalid shared data:', e);
+                openModal('❌ Error: Invalid or corrupted data.');
             }
         }
 
@@ -852,7 +1049,11 @@
         // ===== KEYBOARD SHORTCUTS =====
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                clearBtn.click();
+                if (modal.classList.contains('active')) {
+                    closeModal();
+                } else {
+                    clearBtn.click();
+                }
             }
         });
 
@@ -875,7 +1076,8 @@
         console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
         console.log('📝 Write in Encode → Encoded appears');
         console.log('🔓 Write in Decode → Decoded appears');
-        console.log('🔗 Share button saves Encoded as a shareable link');
+        console.log('🔗 Share button creates a shareable link');
+        console.log('📥 Shared links open in a dedicated modal window');
     </script>
 
 </body>
