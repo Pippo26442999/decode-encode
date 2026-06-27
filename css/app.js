@@ -115,7 +115,15 @@ function getNewline(text) {
     }
 }
 
-// ===== PROCESS =====
+// ===== UPDATE COUNTS =====
+function updateCounts() {
+    inputCount.textContent = inputText.value.length;
+    encodedCount.textContent = encodedText.value.length;
+    decodeInputCount.textContent = decodeText.value.length;
+    decodedCount.textContent = decodedText.value.length;
+}
+
+// ===== PROCESS FUNCTIONS =====
 function processEncode() {
     const input = inputText.value;
     if (!input) {
@@ -157,27 +165,21 @@ function processAll() {
     processDecode();
 }
 
-// ===== UPDATE COUNTS =====
-function updateCounts() {
-    inputCount.textContent = inputText.value.length;
-    encodedCount.textContent = encodedText.value.length;
-    decodeInputCount.textContent = decodeText.value.length;
-    decodedCount.textContent = decodedText.value.length;
-}
-
-// ===== LIVE MODE =====
+// ===== LIVE MODE TOGGLE =====
 function updateLiveIndicator() {
     const isLive = liveMode.checked;
     liveDot.className = 'dot' + (isLive ? ' active' : '');
     liveStatus.textContent = isLive ? 'Live ON' : 'Live OFF';
-    if (isLive) {
-        processAll();
-    }
 }
 
-liveMode.addEventListener('change', updateLiveIndicator);
+liveMode.addEventListener('change', function() {
+    updateLiveIndicator();
+    if (liveMode.checked) {
+        processAll();
+    }
+});
 
-// ===== INPUT EVENTS (LIVE MODE) =====
+// ===== INPUT EVENTS =====
 inputText.addEventListener('input', function() {
     if (liveMode.checked) {
         processEncode();
@@ -256,13 +258,11 @@ clearBtn.addEventListener('click', function() {
 
 // ===== KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown', function(e) {
-    // Ctrl+Enter = Process all
     if (e.ctrlKey && e.key === 'Enter') {
         e.preventDefault();
         processAll();
         showToast('⚡ Processed!', 'success');
     }
-    // Escape = Clear all
     if (e.key === 'Escape') {
         clearBtn.click();
     }
@@ -280,6 +280,7 @@ document.addEventListener('keydown', function(e) {
 
 // ===== INIT =====
 updateLiveIndicator();
+processAll();
 updateCounts();
 
 console.log('🔐 Base64 Encoder/Decoder loaded!');
