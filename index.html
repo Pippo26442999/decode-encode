@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Base64 Encoder / Decoder</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ===== PARTICLES ===== -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon">🔐</span>
+                <h1>Base64 <span>Encoder</span> <span class="slash">/</span> <span class="decoder-text">Decoder</span></h1>
+            </div>
+            <div class="subtitle">Encode or decode your data in real-time</div>
+            <span class="badge">⚡ Live</span>
+            <div class="divider"></div>
+        </div>
+
+        <!-- ===== GRID 2x2 ===== -->
+        <div class="grid">
+            <!-- Encode -->
+            <div class="cell cell-encode">
+                <div class="cell-header">
+                    <label>📝 Encode</label>
+                    <span class="char-count"><span id="input-count">0</span> chars</span>
+                </div>
+                <textarea id="input-text" placeholder="Type or paste to encode..." spellcheck="false"></textarea>
+            </div>
+
+            <!-- Encoded -->
+            <div class="cell cell-encoded">
+                <div class="cell-header">
+                    <label>📋 Encoded</label>
+                    <span class="char-count"><span id="encoded-count">0</span> chars</span>
+                </div>
+                <textarea id="encoded-text" placeholder="Encoded result..." spellcheck="false" readonly></textarea>
+            </div>
+
+            <!-- Decode -->
+            <div class="cell cell-decode">
+                <div class="cell-header">
+                    <label>🔓 Decode</label>
+                    <span class="char-count"><span id="decode-input-count">0</span> chars</span>
+                </div>
+                <textarea id="decode-text" placeholder="Type or paste Base64 to decode..." spellcheck="false"></textarea>
+            </div>
+
+            <!-- Decoded -->
+            <div class="cell cell-decoded">
+                <div class="cell-header">
+                    <label>✅ Decoded</label>
+                    <span class="char-count"><span id="decoded-count">0</span> chars</span>
+                </div>
+                <textarea id="decoded-text" placeholder="Decoded result..." spellcheck="false" readonly></textarea>
+            </div>
+        </div>
+
+        <!-- ===== ACTION ROW ===== -->
+        <div class="action-row">
+            <button class="btn primary" id="encode-btn">➡️ Encode</button>
+            <button class="btn dec" id="decode-btn">⬅️ Decode</button>
+            <button class="btn" id="swap-btn">🔄 Swap</button>
+            <button class="btn" id="copy-btn">📋 Copy</button>
+            <button class="btn danger" id="clear-btn">🗑️ Clear</button>
+        </div>
+
+        <!-- ===== OPTIONS ===== -->
+        <div class="options">
+            <label class="option">
+                <input type="checkbox" id="live-mode" checked>
+                ⚡ Live
+            </label>
+            <label class="option">
+                <input type="checkbox" id="url-safe">
+                🔗 URL-safe
+            </label>
+            <label class="option">
+                <input type="checkbox" id="wrap-lines">
+                📏 Wrap 76
+            </label>
+            <label class="option">
+                <span>📄 Newline:</span>
+                <select id="newline-mode">
+                    <option value="lf">LF</option>
+                    <option value="crlf">CRLF</option>
+                    <option value="none">None</option>
+                </select>
+            </label>
+            <div class="live-indicator">
+                <span class="dot active" id="live-dot"></span>
+                <span id="live-status">Live ON</span>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer">
+            <span class="version"><strong>⚡</strong> Base64 Tool <strong>•</strong> Pippo Edition</span>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
