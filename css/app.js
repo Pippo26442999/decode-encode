@@ -1,7 +1,11 @@
 // ============================================================
 //  BASE64 ENCODER / DECODER - APP
 //  Matrice 2x2: Encode | Encoded | Decode | Decoded
+//  Versione: 2.1
 // ============================================================
+
+// ===== FORZA RICARICAMENTO =====
+console.log('🔐 Base64 Encoder/Decoder v2.1 loaded!');
 
 // ===== PARTICLES =====
 (function createParticles() {
@@ -179,7 +183,7 @@ liveMode.addEventListener('change', function() {
     }
 });
 
-// ===== INPUT EVENTS =====
+// ===== INPUT EVENTS (LIVE MODE) =====
 inputText.addEventListener('input', function() {
     if (liveMode.checked) {
         processEncode();
@@ -283,9 +287,8 @@ updateLiveIndicator();
 processAll();
 updateCounts();
 
-console.log('🔐 Base64 Encoder/Decoder loaded!');
+console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
 console.log('📝 Encode top-left → Encoded top-right');
 console.log('🔓 Decode bottom-left → Decoded bottom-right');
-console.log('⚡ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
 console.log('🔄 Press Ctrl+Enter to process all');
 console.log('🗑️ Press Escape to clear all');
