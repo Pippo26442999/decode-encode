@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base64 Encoder / Decoder</title>
+    <title>🔐 Base64 Encoder / Decoder</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -610,10 +610,10 @@
     <script>
         // ============================================================
         //  BASE64 ENCODER / DECODER - APP COMPLETA
-        //  SOLO COPY E CLEAR
+        //  WRAP E NEWLINE FUNZIONANTI
         // ============================================================
 
-        console.log('🔐 Base64 Encoder/Decoder v3.1 loaded!');
+        console.log('🔐 Base64 Encoder/Decoder v3.2 loaded!');
 
         // ===== PARTICLES =====
         (function createParticles() {
@@ -712,18 +712,31 @@
             return fromBase64(base64);
         }
 
-        function wrapText(text, width) {
-            width = width || 76;
-            if (!wrapLines.checked) return text;
-            return text.replace(/(.{76})/g, '$1\n').trim();
-        }
+        // ===== WRAP E NEWLINE FISSI =====
+        function applyWrapAndNewline(text) {
+            var result = text;
 
-        function getNewline(text) {
-            switch (newlineMode.value) {
-                case 'crlf': return text.replace(/\n/g, '\r\n');
-                case 'none': return text.replace(/\n/g, '');
-                default: return text;
+            // Wrap a 76 caratteri
+            if (wrapLines.checked) {
+                result = result.replace(/(.{76})/g, '$1\n');
+                // Rimuove newline finale se presente
+                if (result.endsWith('\n')) {
+                    result = result.slice(0, -1);
+                }
             }
+
+            // Applica newline
+            switch (newlineMode.value) {
+                case 'crlf':
+                    result = result.replace(/\n/g, '\r\n');
+                    break;
+                case 'none':
+                    result = result.replace(/\n/g, '');
+                    break;
+                // LF: non fare nulla (già \n)
+            }
+
+            return result;
         }
 
         // ===== UPDATE COUNTS =====
@@ -745,8 +758,7 @@
             try {
                 var useUrlSafe = urlSafe.checked;
                 var result = useUrlSafe ? toBase64URL(input) : toBase64(input);
-                result = wrapText(result);
-                result = getNewline(result);
+                result = applyWrapAndNewline(result);
                 encodedText.value = result;
             } catch (e) {
                 encodedText.value = '❌ Error: ' + e.message;
@@ -874,6 +886,8 @@
         console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
         console.log('📝 Encode top-left → Encoded top-right');
         console.log('🔓 Decode bottom-left → Decoded bottom-right');
+        console.log('📏 Wrap: ' + (wrapLines.checked ? 'ON' : 'OFF'));
+        console.log('📄 Newline: ' + newlineMode.value);
     </script>
 
 </body>
