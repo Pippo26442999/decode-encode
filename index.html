@@ -354,6 +354,27 @@
             cursor: pointer;
         }
 
+        .options .option input[type="text"] {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 2px 8px;
+            font-size: 10px;
+            width: 100px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .options .option input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(46, 213, 115, 0.2);
+        }
+
+        .options .option input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+
         .live-indicator {
             display: flex;
             align-items: center;
@@ -545,6 +566,64 @@
             color: #e94560;
         }
 
+        /* ===== MODALE PASSWORD ===== */
+        .modal-box .password-input-group {
+            margin: 12px 0;
+        }
+
+        .modal-box .password-input-group label {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .modal-box .password-input-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal-box .password-input-group input:focus {
+            outline: none;
+            border-color: rgba(46, 213, 115, 0.2);
+        }
+
+        .modal-box .password-input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .modal-box .password-error {
+            color: #e94560;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .modal-box .password-error.show {
+            display: block;
+        }
+
+        .modal-box .password-required-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(233, 69, 96, 0.12);
+            color: #e94560;
+            border: 1px solid rgba(233, 69, 96, 0.15);
+            margin-left: 8px;
+        }
+
         .toast {
             position: fixed;
             top: 20px;
@@ -609,6 +688,9 @@
             .modal-box {
                 padding: 25px 20px 20px;
             }
+            .options .option input[type="text"] {
+                width: 70px;
+            }
         }
 
         @media (max-width: 400px) {
@@ -628,6 +710,10 @@
                 font-size: 9px;
             }
             .options .option {
+                font-size: 9px;
+            }
+            .options .option input[type="text"] {
+                width: 60px;
                 font-size: 9px;
             }
             .footer .version {
@@ -706,6 +792,10 @@
                 <input type="checkbox" id="url-safe">
                 🔗 URL-safe
             </label>
+            <label class="option">
+                <span>🔑 Password:</span>
+                <input type="text" id="share-password" placeholder="(optional)">
+            </label>
             <div class="live-indicator">
                 <span class="dot active" id="live-dot"></span>
                 <span id="live-status">Live ON</span>
@@ -724,7 +814,15 @@
                 <h2>🔓 Decoded <span>Content</span></h2>
                 <button class="modal-close" id="modal-close">✕</button>
             </div>
-            <div class="modal-content">This is the decoded content from the shared link:</div>
+            <div class="modal-content" id="modal-content">This is the decoded content from the shared link:</div>
+
+            <!-- Password input (hidden by default) -->
+            <div class="password-input-group" id="password-group" style="display:none;">
+                <label>🔑 Enter password to unlock:</label>
+                <input type="password" id="modal-password" placeholder="Enter password...">
+                <div class="password-error" id="password-error">❌ Wrong password. Try again.</div>
+            </div>
+
             <div class="modal-result" id="modal-result"></div>
             <div class="modal-actions">
                 <button class="btn-modal copy" id="modal-copy">📋 Copy</button>
@@ -735,10 +833,10 @@
 
     <script>
         // ============================================================
-        //  BASE64 ENCODER / DECODER - CON MODALE DECODE
+        //  BASE64 ENCODER / DECODER - CON PASSWORD PER DECODE
         // ============================================================
 
-        console.log('🔐 Base64 Encoder/Decoder v3.6 loaded!');
+        console.log('🔐 Base64 Encoder/Decoder v3.7 loaded!');
 
         // ===== PARTICLES =====
         (function createParticles() {
@@ -785,23 +883,77 @@
 
         var liveMode = document.getElementById('live-mode');
         var urlSafe = document.getElementById('url-safe');
+        var sharePassword = document.getElementById('share-password');
         var liveDot = document.getElementById('live-dot');
         var liveStatus = document.getElementById('live-status');
 
         // ===== MODALE =====
         var modal = document.getElementById('decode-modal');
         var modalResult = document.getElementById('modal-result');
+        var modalContent = document.getElementById('modal-content');
         var modalClose = document.getElementById('modal-close');
         var modalCloseBtn = document.getElementById('modal-close-btn');
         var modalCopy = document.getElementById('modal-copy');
+        var passwordGroup = document.getElementById('password-group');
+        var modalPassword = document.getElementById('modal-password');
+        var passwordError = document.getElementById('password-error');
 
-        function openModal(text) {
-            modalResult.textContent = text || '(empty)';
+        var storedDecodedText = '';
+        var storedPassword = '';
+
+        function openModal(text, password) {
+            storedDecodedText = text || '';
+            storedPassword = password || '';
+
+            modalResult.textContent = '';
+            passwordError.classList.remove('show');
+            modalPassword.value = '';
+
+            if (password) {
+                passwordGroup.style.display = 'block';
+                modalContent.textContent = '🔒 This content is password protected. Enter the password to view it:';
+                modalResult.textContent = '🔒 Locked';
+                modalPassword.focus();
+                modalPassword.addEventListener('keydown', onPasswordKeydown);
+                document.getElementById('modal-copy').style.display = 'none';
+            } else {
+                passwordGroup.style.display = 'none';
+                modalContent.textContent = 'This is the decoded content from the shared link:';
+                modalResult.textContent = text || '(empty)';
+                document.getElementById('modal-copy').style.display = 'flex';
+            }
+
             modal.classList.add('active');
+        }
+
+        function onPasswordKeydown(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        function checkPassword() {
+            var entered = modalPassword.value.trim();
+            if (entered === storedPassword) {
+                passwordError.classList.remove('show');
+                passwordGroup.style.display = 'none';
+                modalResult.textContent = storedDecodedText;
+                modalContent.textContent = '✅ This is the decoded content from the shared link:';
+                document.getElementById('modal-copy').style.display = 'flex';
+                showToast('✅ Unlocked!', 'success');
+            } else {
+                passwordError.classList.add('show');
+                modalPassword.value = '';
+                modalPassword.focus();
+                showToast('❌ Wrong password!', 'error');
+            }
         }
 
         function closeModal() {
             modal.classList.remove('active');
+            if (modalPassword) {
+                modalPassword.removeEventListener('keydown', onPasswordKeydown);
+            }
         }
 
         modalClose.addEventListener('click', closeModal);
@@ -812,7 +964,7 @@
 
         modalCopy.addEventListener('click', function() {
             var text = modalResult.textContent;
-            if (!text || text === '(empty)') {
+            if (!text || text === '(empty)' || text === '🔒 Locked') {
                 showToast('❌ Nothing to copy', 'error');
                 return;
             }
@@ -982,6 +1134,7 @@
         // ===== SHARE =====
         shareBtn.addEventListener('click', function() {
             var encoded = encodedText.value;
+            var password = sharePassword.value.trim();
 
             if (!encoded) {
                 showToast('❌ Nothing to share. Write something in Encode first.', 'error');
@@ -990,6 +1143,7 @@
 
             var data = { b: encoded };
             if (urlSafe.checked) data.u = '1';
+            if (password) data.p = password;
 
             var json = JSON.stringify(data);
             var encodedData = toBase64URL(json);
@@ -998,14 +1152,18 @@
             var shareUrl = currentUrl + '?data=' + encodedData;
 
             navigator.clipboard.writeText(shareUrl).then(function() {
-                showToast('🔗 Link copied! When opened, it will show the decoded content.', 'success');
+                if (password) {
+                    showToast('🔗 Link copied! Password protected.', 'success');
+                } else {
+                    showToast('🔗 Link copied!', 'success');
+                }
             }).catch(function() {
                 prompt('Copy this link to share:', shareUrl);
                 showToast('🔗 Link generated!', 'info');
             });
         });
 
-        // ===== CARICA LINK CONDIVISO E APRE MODALE =====
+        // ===== CARICA LINK CONDIVISO =====
         function loadSharedData() {
             var urlParams = new URLSearchParams(window.location.search);
             var dataParam = urlParams.get('data');
@@ -1017,9 +1175,14 @@
                 var data = JSON.parse(json);
 
                 if (data.b) {
-                    // Decodifica il Base64 per mostrarlo nella modale
+                    var password = data.p || '';
                     var decoded = fromBase64(data.b);
-                    openModal(decoded);
+
+                    if (password) {
+                        openModal(decoded, password);
+                    } else {
+                        openModal(decoded);
+                    }
                 }
 
                 if (data.u === '1') {
@@ -1042,6 +1205,7 @@
             encodedText.value = '';
             decodeText.value = '';
             decodedText.value = '';
+            sharePassword.value = '';
             updateCounts();
             showToast('🗑️ Cleared!', 'info');
         });
@@ -1076,8 +1240,7 @@
         console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
         console.log('📝 Write in Encode → Encoded appears');
         console.log('🔓 Write in Decode → Decoded appears');
-        console.log('🔗 Share button creates a shareable link');
-        console.log('📥 Shared links open in a dedicated modal window');
+        console.log('🔗 Share button with optional password protection');
     </script>
 
 </body>
