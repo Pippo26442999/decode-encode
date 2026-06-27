@@ -9,9 +9,7 @@ A clean, real-time Base64 encoding and decoding tool with a 2x2 matrix layout.
 - **2x2 Matrix Layout** - Encode | Encoded | Decode | Decoded
 - **Live Mode** - Real-time encoding/decoding as you type
 - **URL-safe** - Base64URL format support
-- **Wrap Lines** - 76 character line wrapping
-- **Newline Options** - LF, CRLF, or None
-- **Swap** - Exchange Encode and Decode inputs
+- **Share-links with optional Password** - Popup will open and ask you the Password if not will show all the contents. 
 - **Copy** - Copy results to clipboard
 - **Clear** - Clear all fields
 - **Keyboard Shortcuts** - `Ctrl+Enter` to process, `Esc` to clear
