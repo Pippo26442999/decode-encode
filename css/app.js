@@ -170,40 +170,53 @@ function updateLiveIndicator() {
     const isLive = liveMode.checked;
     liveDot.className = 'dot' + (isLive ? ' active' : '');
     liveStatus.textContent = isLive ? 'Live ON' : 'Live OFF';
-    if (isLive) processAll();
+    if (isLive) {
+        processAll();
+    }
 }
 
 liveMode.addEventListener('change', updateLiveIndicator);
 
-// ===== INPUT EVENTS =====
-inputText.addEventListener('input', () => {
-    if (liveMode.checked) processEncode();
+// ===== INPUT EVENTS (LIVE MODE) =====
+inputText.addEventListener('input', function() {
+    if (liveMode.checked) {
+        processEncode();
+    }
     updateCounts();
 });
 
-decodeText.addEventListener('input', () => {
-    if (liveMode.checked) processDecode();
+decodeText.addEventListener('input', function() {
+    if (liveMode.checked) {
+        processDecode();
+    }
     updateCounts();
 });
 
 // ===== OPTIONS CHANGE =====
-urlSafe.addEventListener('change', () => { if (liveMode.checked) processAll(); });
-wrapLines.addEventListener('change', () => { if (liveMode.checked) processAll(); });
-newlineMode.addEventListener('change', () => { if (liveMode.checked) processAll(); });
+urlSafe.addEventListener('change', function() {
+    if (liveMode.checked) processAll();
+});
+
+wrapLines.addEventListener('change', function() {
+    if (liveMode.checked) processAll();
+});
+
+newlineMode.addEventListener('change', function() {
+    if (liveMode.checked) processAll();
+});
 
 // ===== BUTTONS =====
-encodeBtn.addEventListener('click', () => {
+encodeBtn.addEventListener('click', function() {
     processEncode();
     showToast('✅ Encoded!', 'success');
 });
 
-decodeBtn.addEventListener('click', () => {
+decodeBtn.addEventListener('click', function() {
     processDecode();
     showToast('✅ Decoded!', 'success');
 });
 
-swapBtn.addEventListener('click', () => {
-    // Scambia i contenuti di Encode e Decode
+swapBtn.addEventListener('click', function() {
     const temp = inputText.value;
     inputText.value = decodeText.value;
     decodeText.value = temp;
@@ -212,8 +225,7 @@ swapBtn.addEventListener('click', () => {
     showToast('🔄 Swapped!', 'info');
 });
 
-copyBtn.addEventListener('click', () => {
-    // Copia il primo output non vuoto (Encoded o Decoded)
+copyBtn.addEventListener('click', function() {
     const output = encodedText.value || decodedText.value;
     if (!output) {
         showToast('❌ Nothing to copy', 'error');
@@ -233,7 +245,7 @@ copyBtn.addEventListener('click', () => {
     });
 });
 
-clearBtn.addEventListener('click', () => {
+clearBtn.addEventListener('click', function() {
     inputText.value = '';
     encodedText.value = '';
     decodeText.value = '';
@@ -243,7 +255,7 @@ clearBtn.addEventListener('click', () => {
 });
 
 // ===== KEYBOARD SHORTCUTS =====
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', function(e) {
     // Ctrl+Enter = Process all
     if (e.ctrlKey && e.key === 'Enter') {
         e.preventDefault();
