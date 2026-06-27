@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base64 Encoder / Decoder</title>
+    <title>🔐 Base64 Encoder / Decoder</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <style>
-        /* ============================================================
-           STILE COMPLETO
-           ============================================================ */
         * {
             margin: 0;
             padding: 0;
@@ -502,11 +499,9 @@
 </head>
 <body>
 
-    <!-- ===== PARTICLES ===== -->
     <div class="particles" id="particles"></div>
 
     <div class="container">
-        <!-- ===== HEADER ===== -->
         <div class="header">
             <div class="logo">
                 <span class="logo-icon">🔐</span>
@@ -517,9 +512,7 @@
             <div class="divider"></div>
         </div>
 
-        <!-- ===== GRID 2x2 ===== -->
         <div class="grid">
-            <!-- Encode -->
             <div class="cell cell-encode">
                 <div class="cell-header">
                     <label>📝 Encode</label>
@@ -528,7 +521,6 @@
                 <textarea id="input-text" placeholder="Type or paste to encode..." spellcheck="false"></textarea>
             </div>
 
-            <!-- Encoded -->
             <div class="cell cell-encoded">
                 <div class="cell-header">
                     <label>📋 Encoded</label>
@@ -537,16 +529,14 @@
                 <textarea id="encoded-text" placeholder="Encoded result..." spellcheck="false" readonly></textarea>
             </div>
 
-            <!-- Decode -->
             <div class="cell cell-decode">
                 <div class="cell-header">
                     <label>🔓 Decode</label>
                     <span class="char-count"><span id="decode-input-count">0</span> chars</span>
                 </div>
-                <textarea id="decode-text" placeholder="Type or paste Base64 to decode..." spellcheck="false"></textarea>
+                <textarea id="decode-text" placeholder="Paste Base64 here..." spellcheck="false"></textarea>
             </div>
 
-            <!-- Decoded -->
             <div class="cell cell-decoded">
                 <div class="cell-header">
                     <label>✅ Decoded</label>
@@ -556,14 +546,12 @@
             </div>
         </div>
 
-        <!-- ===== ACTION ROW ===== -->
         <div class="action-row">
             <button class="btn copy" id="copy-btn">📋 Copy</button>
             <button class="btn share" id="share-btn">🔗 Share</button>
             <button class="btn clear" id="clear-btn">🗑️ Clear</button>
         </div>
 
-        <!-- ===== OPTIONS ===== -->
         <div class="options">
             <label class="option">
                 <input type="checkbox" id="live-mode" checked>
@@ -579,7 +567,6 @@
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
         <div class="footer">
             <span class="version"><strong>⚡</strong> Base64 Tool <strong>•</strong> Pippo Edition</span>
         </div>
@@ -587,11 +574,10 @@
 
     <script>
         // ============================================================
-        //  BASE64 ENCODER / DECODER - APP COMPLETA
-        //  CON SHARE LINK (condivisione tramite URL)
+        //  BASE64 ENCODER / DECODER - SHARE CON DECODE
         // ============================================================
 
-        console.log('🔐 Base64 Encoder/Decoder v3.4 loaded!');
+        console.log('🔐 Base64 Encoder/Decoder v3.5 loaded!');
 
         // ===== PARTICLES =====
         (function createParticles() {
@@ -792,35 +778,28 @@
             });
         });
 
-        // ===== SHARE =====
+        // ===== SHARE (salva l'Encoded in Decode) =====
         shareBtn.addEventListener('click', function() {
-            var encodeValue = inputText.value;
-            var decodeValue = decodeText.value;
+            var encoded = encodedText.value;
 
-            if (!encodeValue && !decodeValue) {
-                showToast('❌ Nothing to share', 'error');
+            if (!encoded) {
+                showToast('❌ Nothing to share. Write something in Encode first.', 'error');
                 return;
             }
 
-            // Crea un oggetto con i dati da condividere
-            var data = {};
-            if (encodeValue) data.e = encodeValue;
-            if (decodeValue) data.d = decodeValue;
+            // Crea un oggetto con il Base64 da condividere
+            var data = { b: encoded };
             if (urlSafe.checked) data.u = '1';
 
-            // Codifica in Base64URL per sicurezza
             var json = JSON.stringify(data);
-            var encoded = toBase64URL(json);
+            var encodedData = toBase64URL(json);
 
-            // Costruisci il link
             var currentUrl = window.location.href.split('?')[0].split('#')[0];
-            var shareUrl = currentUrl + '?data=' + encoded;
+            var shareUrl = currentUrl + '?data=' + encodedData;
 
-            // Copia negli appunti
             navigator.clipboard.writeText(shareUrl).then(function() {
-                showToast('🔗 Link copied to clipboard!', 'success');
+                showToast('🔗 Link copied to clipboard! The Base64 will appear in Decode.', 'success');
             }).catch(function() {
-                // Fallback: mostra il link in un prompt
                 prompt('Copy this link to share:', shareUrl);
                 showToast('🔗 Link generated!', 'info');
             });
@@ -837,13 +816,9 @@
                 var json = fromBase64URL(dataParam);
                 var data = JSON.parse(json);
 
-                if (data.e) {
-                    inputText.value = data.e;
-                    if (liveMode.checked) processEncode();
-                }
-
-                if (data.d) {
-                    decodeText.value = data.d;
+                if (data.b) {
+                    // Metti il Base64 in Decode
+                    decodeText.value = data.b;
                     if (liveMode.checked) processDecode();
                 }
 
@@ -853,13 +828,12 @@
 
                 updateCounts();
 
-                // Pulisci l'URL dalla query per non ricaricare i dati
                 if (window.history && window.history.replaceState) {
                     var cleanUrl = window.location.href.split('?')[0];
                     window.history.replaceState({}, document.title, cleanUrl);
                 }
 
-                showToast('📥 Shared data loaded!', 'info');
+                showToast('📥 Shared Base64 loaded in Decode!', 'info');
             } catch (e) {
                 console.warn('Invalid shared data:', e);
             }
@@ -899,9 +873,9 @@
         loadSharedData();
 
         console.log('✅ Live mode: ' + (liveMode.checked ? 'ON' : 'OFF'));
-        console.log('📝 Encode top-left → Encoded top-right');
-        console.log('🔓 Decode bottom-left → Decoded bottom-right');
-        console.log('🔗 Share button creates a shareable link');
+        console.log('📝 Write in Encode → Encoded appears');
+        console.log('🔓 Write in Decode → Decoded appears');
+        console.log('🔗 Share button saves Encoded as a shareable link');
     </script>
 
 </body>
