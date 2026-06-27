@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 Base64 Encoder / Decoder</title>
+    <title>Base64 Encoder / Decoder</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -266,7 +266,7 @@
         .action-row {
             display: flex;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
             padding: 10px 0 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
@@ -275,12 +275,12 @@
         }
 
         .action-row .btn {
-            padding: 6px 16px;
+            padding: 6px 20px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.02);
             color: rgba(255, 255, 255, 0.35);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -296,28 +296,24 @@
             transform: translateY(-1px);
         }
 
-        .action-row .btn.primary {
+        .action-row .btn.copy {
             background: rgba(46, 213, 115, 0.08);
             border-color: rgba(46, 213, 115, 0.12);
             color: #2ed573;
         }
 
-        .action-row .btn.primary:hover {
+        .action-row .btn.copy:hover {
             background: rgba(46, 213, 115, 0.15);
         }
 
-        .action-row .btn.dec {
-            background: rgba(79, 172, 254, 0.08);
-            border-color: rgba(79, 172, 254, 0.12);
-            color: #4facfe;
+        .action-row .btn.clear {
+            background: rgba(233, 69, 96, 0.06);
+            border-color: rgba(233, 69, 96, 0.08);
+            color: rgba(233, 69, 96, 0.6);
         }
 
-        .action-row .btn.dec:hover {
-            background: rgba(79, 172, 254, 0.15);
-        }
-
-        .action-row .btn.danger:hover {
-            background: rgba(233, 69, 96, 0.1);
+        .action-row .btn.clear:hover {
+            background: rgba(233, 69, 96, 0.12);
             color: #e94560;
             border-color: rgba(233, 69, 96, 0.12);
         }
@@ -484,8 +480,8 @@
                 font-size: 18px;
             }
             .action-row .btn {
-                padding: 5px 12px;
-                font-size: 10px;
+                padding: 5px 16px;
+                font-size: 11px;
             }
         }
 
@@ -502,8 +498,8 @@
                 padding: 8px 10px;
             }
             .action-row .btn {
-                padding: 4px 10px;
-                font-size: 9px;
+                padding: 4px 14px;
+                font-size: 10px;
             }
             .options .option {
                 font-size: 9px;
@@ -573,11 +569,8 @@
 
         <!-- ===== ACTION ROW ===== -->
         <div class="action-row">
-            <button class="btn primary" id="encode-btn">➡️ Encode</button>
-            <button class="btn dec" id="decode-btn">⬅️ Decode</button>
-            <button class="btn" id="swap-btn">🔄 Swap</button>
-            <button class="btn" id="copy-btn">📋 Copy</button>
-            <button class="btn danger" id="clear-btn">🗑️ Clear</button>
+            <button class="btn copy" id="copy-btn">📋 Copy</button>
+            <button class="btn clear" id="clear-btn">🗑️ Clear</button>
         </div>
 
         <!-- ===== OPTIONS ===== -->
@@ -617,10 +610,10 @@
     <script>
         // ============================================================
         //  BASE64 ENCODER / DECODER - APP COMPLETA
-        //  TUTTO IN UN UNICO FILE
+        //  SOLO COPY E CLEAR
         // ============================================================
 
-        console.log('🔐 Base64 Encoder/Decoder v3.0 loaded!');
+        console.log('🔐 Base64 Encoder/Decoder v3.1 loaded!');
 
         // ===== PARTICLES =====
         (function createParticles() {
@@ -661,9 +654,6 @@
         var decodeInputCount = document.getElementById('decode-input-count');
         var decodedCount = document.getElementById('decoded-count');
 
-        var encodeBtn = document.getElementById('encode-btn');
-        var decodeBtn = document.getElementById('decode-btn');
-        var swapBtn = document.getElementById('swap-btn');
         var copyBtn = document.getElementById('copy-btn');
         var clearBtn = document.getElementById('clear-btn');
 
@@ -828,26 +818,7 @@
             if (liveMode.checked) processAll();
         });
 
-        // ===== BUTTONS =====
-        encodeBtn.addEventListener('click', function() {
-            processEncode();
-            showToast('✅ Encoded!', 'success');
-        });
-
-        decodeBtn.addEventListener('click', function() {
-            processDecode();
-            showToast('✅ Decoded!', 'success');
-        });
-
-        swapBtn.addEventListener('click', function() {
-            var temp = inputText.value;
-            inputText.value = decodeText.value;
-            decodeText.value = temp;
-            if (liveMode.checked) processAll();
-            updateCounts();
-            showToast('🔄 Swapped!', 'info');
-        });
-
+        // ===== COPY =====
         copyBtn.addEventListener('click', function() {
             var output = encodedText.value || decodedText.value;
             if (!output) {
@@ -868,6 +839,7 @@
             });
         });
 
+        // ===== CLEAR =====
         clearBtn.addEventListener('click', function() {
             inputText.value = '';
             encodedText.value = '';
@@ -879,11 +851,6 @@
 
         // ===== KEYBOARD SHORTCUTS =====
         document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                processAll();
-                showToast('⚡ Processed!', 'success');
-            }
             if (e.key === 'Escape') {
                 clearBtn.click();
             }
